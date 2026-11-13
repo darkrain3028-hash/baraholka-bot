@@ -6,6 +6,7 @@ const { VacancyLog } = require("./lib/vacancies.cjs");
 const hh = require("./sources/hh.cjs");
 const trudvsem = require("./sources/trudvsem.cjs");
 const avito = require("./sources/avito.cjs");
+const habr = require("./sources/habr.cjs");
 
 const store = new Store(ensureData());
 const vacancyLog = new VacancyLog(ensureData());
@@ -30,6 +31,16 @@ async function collectAll() {
       all.push(...list);
     } catch (e) {
       console.error("trudvsem: сбой сбора —", e.message);
+    }
+  }
+
+  if (config.habr.enabled) {
+    try {
+      const { details } = await habr.collect(config.habr);
+      console.log("habr: просмотрено карточек", details.length);
+      all.push(...details);
+    } catch (e) {
+      console.error("habr: сбой сбора —", e.message);
     }
   }
 
@@ -105,7 +116,7 @@ async function run(opts = {}) {
     if (it.score < config.minScore) {
       rejected++;
       rejects["низкая оценка"] = (rejects["низкая оценка"] || 0) + 1;
-      if (verbose) console.log("  ниже порога:", it.score + "/5", it.title);
+      if (verbose) console.log("  ниже порога:", it.score + "/10", it.title);
       continue;
     }
 
@@ -136,7 +147,7 @@ async function run(opts = {}) {
 
   if (dryRun || verbose) {
     for (const it of fresh.slice(0, 20)) {
-      console.log("\n----- " + it.score + "/5 -----");
+      console.log("\n----- " + it.score + "/10 -----");
       console.log(it.title + " | " + it.company);
       console.log(it.url);
     }

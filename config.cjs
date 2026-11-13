@@ -40,7 +40,8 @@ const config = {
   channel: env.CHANNEL || process.env.CHANNEL || "",
   adminId: env.ADMIN_ID || process.env.ADMIN_ID || "",
 
-  minScore: num(env.MIN_SCORE, 3),
+  minScore: num(env.MIN_SCORE, 6),
+  contractMode: env.CONTRACT_MODE || "soft",
   maxPostsPerRun: num(env.MAX_POSTS_PER_RUN, 3),
   postIntervalMin: num(env.POST_INTERVAL_MIN, 25),
   reportHours: num(env.REPORT_HOURS, 24),
@@ -70,7 +71,18 @@ const config = {
   },
 
   avito: {
-    enabled: (env.AVITO_ENABLED || "1") !== "0",
+    enabled: (env.AVITO_ENABLED || "0") !== "0",
+  },
+
+  habr: {
+    enabled: (env.HABR_ENABLED || "1") !== "0",
+    queries: (env.HABR_QUERIES || "верстальщик,верстка,frontend")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    pages: num(env.HABR_PAGES, 1),
+    maxDetails: num(env.HABR_MAX_DETAILS, 20),
+    pauseMs: num(env.HABR_PAUSE_MS, 800),
   },
 };
 
