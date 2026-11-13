@@ -1,0 +1,16 @@
+{
+  "name": "baraholka-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Сбор удалённых вакансий и публикация в Telegram-канал",
+  "main": "bot.cjs",
+  "scripts": {
+    "start": "node bot.cjs",
+    "collect": "node collect.cjs",
+    "publish": "node publish.cjs",
+    "check": "node check.cjs"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
