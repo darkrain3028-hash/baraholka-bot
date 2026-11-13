@@ -12,7 +12,7 @@ function stateFromHtml(html) {
   }
 }
 
-async function search({ area = "212", page = 0, perPage = 50 } = {}) {
+async function search({ area = "212", page = 0, perPage = 50, query = "" } = {}) {
   const url =
     BASE +
     "/search/vacancy?area=" +
@@ -20,7 +20,8 @@ async function search({ area = "212", page = 0, perPage = 50 } = {}) {
     "&schedule=remote&order_by=publication_time&items_on_page=" +
     perPage +
     "&page=" +
-    page;
+    page +
+    (query ? "&text=" + encodeURIComponent(query) + "&search_field=name" : "");
   const { status, text } = await fetchText(url, { tries: 2 });
   if (status !== 200) throw new Error("hh search: HTTP " + status);
   const state = stateFromHtml(text);
@@ -91,19 +92,22 @@ async function detail(id) {
   };
 }
 
-async function collect({ area, pages, perPage, maxDetails, pauseMs }) {
+async function collect({ area, pages, perPage, maxDetails, pauseMs, queries = [] }) {
   const found = new Map();
-  for (let page = 0; page < pages; page++) {
-    let list = [];
-    try {
-      list = await search({ area, page, perPage });
-    } catch (e) {
-      console.error("hh: страница " + page + " не получена:", e.message);
-      break;
+  const list = queries.length ? queries : [""];
+  for (const text of list) {
+    for (let page = 0; page < pages; page++) {
+      let batch = [];
+      try {
+        batch = await search({ area, page, perPage, query: text });
+      } catch (e) {
+        console.error("hh: страница " + page + (text ? " по запросу «" + text + "»" : "") + " не получена:", e.message);
+        break;
+      }
+      for (const v of batch) if (!found.has(v.id)) found.set(v.id, v);
+      if (batch.length < perPage) break;
+      await sleep(Math.max(400, pauseMs));
     }
-    for (const v of list) if (!found.has(v.id)) found.set(v.id, v);
-    if (list.length < perPage) break;
-    await sleep(Math.max(400, pauseMs));
   }
 
   const brief = Array.from(found.values()).slice(0, maxDetails);

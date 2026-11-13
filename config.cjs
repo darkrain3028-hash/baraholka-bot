@@ -42,9 +42,18 @@ const config = {
   reportHours: num(env.REPORT_HOURS, 24),
   collectIntervalMin: num(env.COLLECT_INTERVAL_MIN, 60),
 
+  profile: {
+    enabled: (env.PROFILE_ENABLED || "1") !== "0",
+    titleRx: env.PROFILE_TITLE_RX || "верстк|вёрстк|верстальщик|верстальщица|frontend|фронтенд|html|css|web-?разработ|веб-?разработ|лендинг|landing",
+  },
+
   hh: {
     enabled: (env.HH_ENABLED || "1") !== "0",
-    area: env.HH_AREA || "212",
+    area: env.HH_AREA || "113",
+    queries: (env.HH_QUERIES || "верстальщик,верстка")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
     pages: num(env.HH_PAGES, 3),
     perPage: num(env.HH_PER_PAGE, 50),
     maxDetails: num(env.HH_MAX_DETAILS, 45),
