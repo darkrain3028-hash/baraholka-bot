@@ -26,6 +26,10 @@ function readEnv() {
 
 const env = readEnv();
 
+for (const key of ["BRIDGE_URL", "BOT_TOKEN", "CHANNEL", "ADMIN_ID"]) {
+  if (env[key] && !process.env[key]) process.env[key] = env[key];
+}
+
 const num = (v, d) => {
   const n = Number(v);
   return Number.isFinite(n) ? n : d;
